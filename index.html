@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Diablo immortal Events</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    </head>
+
+    <body class="bg-light">
+        <div class="position-absolute top-0 end-0 p-2" id="lang"></div>
+
+        <main class="container" id="content">
+            <div class="alert alert-primary mt-5" role="alert">
+                Loading...
+            </div>
+        </main>
+
+        <script id="template_content" type="x-tmpl-mustache">
+            {{#events_infos}}
+                <div class="card mt-2">
+                    <div class="card-body">
+                        <h5 class="card-title">{{title}}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{subtitle}}</h6>
+                    </div>
+                </div>
+            {{/events_infos}}
+        </script>
+        <script id="template_lang" type="x-tmpl-mustache">
+            <div class="list-group">
+                {{#langs}}
+                <a href="?lang={{lang}}" class="list-group-item list-group-item-action text-capitalize{{#active}} active{{/active}}" aria-current="true">{{lang}}</a>
+                {{/langs}}
+            </div>
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/mustache@latest"></script>
+        <script src="https://cdn.jsdelivr.net/npm/croner@4/dist/croner.min.js"></script>
+        <script>
+            const USER_LANG = new URLSearchParams(document.location.search).get('lang') || 'en';
+            const EVENTS = [
+                {
+                    title: {
+                        en: 'Ancient Arena',
+                        fr: 'Arène antique',
+                    },
+                    location: {
+                        en: 'Bilefen',
+                        fr: 'Tourbefiel',
+                    },
+                    start_at: [
+                        Cron('0  30  21 * * TUE'),
+                        Cron('0  30  21 * * THU'),
+                        Cron('0  30  21 * * SAT'),
+                        Cron('0  30  21 * * SUN'),
+                    ],
+                    duration: 0
+                },
+                {
+                    title: {
+                        en: 'Ancient Nightmare',
+                        fr: 'Ancien cauchemar',
+                    },
+                    location: {
+                        en: 'Mount Zavain',
+                        fr: 'Mont Zavain',
+                    },
+                    start_at: [
+                        Cron('0  0  12 * * WED'),
+                        Cron('0 30  20 * * WED'),
+                        Cron('0  0  21 * * WED'),
+                        Cron('0  0  12 * * FRI'),
+                        Cron('0 30  20 * * FRI'),
+                        Cron('0  0  21 * * FRI'),
+                    ],
+                    duration: 0
+                },
+                {
+                    title: {
+                        en: 'Demon Gates',
+                        fr: 'Portails démoniaques',
+                    },
+                    location: {
+                        en: 'Realm of Damnation',
+                        fr: 'Royaume de la Damnation',
+                    },
+                    start_at: [
+                        Cron('0  0  12 * * MON'),
+                        Cron('0 30  20 * * MON'),
+                        Cron('0  0  22 * * MON'),
+                        Cron('0  0  12 * * THU'),
+                        Cron('0 30  20 * * THU'),
+                        Cron('0  0  22 * * THU'),
+                        Cron('0  0  12 * * SUN'),
+                        Cron('0 30  20 * * SUN'),
+                        Cron('0  0  22 * * SUN'),
+                    ],
+                    duration: 0
+                },
+                {
+                    title: {
+                        en: 'Haunted Carriage',
+                        fr: 'Calèche fantôme',
+                    },
+                    location: {
+                        en: 'Ashwold Cemetery',
+                        fr: 'Cimetière de Cendreval',
+                    },
+                    start_at: [
+                        Cron('0  0  12 * * Tue'),
+                        Cron('0 30  20 * * Tue'),
+                        Cron('0  0  22 * * Tue'),
+                        Cron('0  0  12 * * Sat'),
+                        Cron('0 30  20 * * Sat'),
+                        Cron('0  0  22 * * Sat'),
+                    ],
+                    duration: 0
+                },
+            ];
+            const LANGS = {
+                couldown: {
+                    en: 'In {{delay_str}}',
+                    fr: 'Dans {{delay_str}}',
+                },
+                days: {
+                    en: 'd',
+                    fr: 'j',
+                },
+                hours: {
+                    en: 'h',
+                    fr: 'h',
+                },
+                minutes: {
+                    en: 'm',
+                    fr: 'm',
+                },
+                seconds: {
+                    en: 's',
+                    fr: 's',
+                },
+                subtitle: {
+                    en: '{{couldown}} at {{location}}',
+                    fr: '{{couldown}} à {{location}}',
+                }
+            };
+
+            function initLangs() {
+                let langs = [];
+                for (const lang in LANGS.subtitle) {
+                    langs.push({
+                        lang: lang,
+                        active: lang === USER_LANG,
+                    });
+                }
+
+                const template = document.getElementById('template_lang').innerHTML;
+                const rendered = Mustache.render(template, { user_lang: USER_LANG, langs: langs});
+                document.getElementById('lang').innerHTML = rendered;
+            }
+
+            // Make events infos
+            function makeEventsInfos() {
+                let events_infos = [];
+
+                for (const event of EVENTS) {
+                    events_infos.push(makeEventInfos(event));
+                }
+
+                // Ordering by delay
+                events_infos.sort(function(a, b) {
+                    return a.ordering - b.ordering ;
+                });
+
+                return events_infos;
+            }
+
+            // Make one events infos
+            function makeEventInfos(event) {
+                let event_infos = {...event};
+                const now = new Date().getTime();
+
+                // Get event lang infos
+                for (const [key, value] of Object.entries(event_infos)) {
+                    if (typeof value === 'object' && USER_LANG in value) {
+                        event_infos[key] = value[USER_LANG];
+                    }
+                }
+
+                // Search last / next date
+                event_infos.last_at = null;
+                for (const cron of event_infos.start_at) {
+                    // Get last event date
+                    for (const last_cron of cron.enumerate(10, new Date(new Date().getTime() - 7*24*60*60*1000))) {
+                        if (last_cron > event_infos.last_at && last_cron < now) {
+                            event_infos.last_at = last_cron;
+                        }
+                    }
+
+                    // Get next event date
+                    const next_cron = cron.next();
+                    if (!event_infos.next_at || next_cron < event_infos.next_at) {
+                        event_infos.next_at = next_cron;
+                    }
+                }
+
+                // Add calc results
+                event_infos.delay = Math.floor((event_infos.next_at - now) / 1000);
+                event_infos.ordering = event_infos.delay;
+
+                // Add global lang infos
+                event_infos.delay_str = timeDiffToStr(event_infos.delay);
+                event_infos.couldown = Mustache.render(LANGS.couldown[USER_LANG], event_infos);
+                event_infos.subtitle = Mustache.render(LANGS.subtitle[USER_LANG], event_infos);
+
+                return event_infos;
+            }
+
+            function timeDiffToStr(seconds) {
+                let result = '';
+
+                const assoc = [
+                    [86400, LANGS.days[USER_LANG]], // Days
+                    [3600, LANGS.hours[USER_LANG]], // Hours
+                    [60, LANGS.minutes[USER_LANG]], // Minutes
+                    [1, LANGS.seconds[USER_LANG]],  // Seconds
+                ]
+                for (const data of assoc) {
+                    const count = Math.floor(seconds / data[0]);
+                    if (count >= 1) {
+                        seconds -= count * data[0];
+                        result += ' ' + count + data[1];
+                    }
+                }
+
+                return result
+            }
+
+            // Update Html Page by new events values
+            function updateHtml(events_infos) {
+                const template = document.getElementById('template_content').innerHTML;
+                const rendered = Mustache.render(template, { events_infos: events_infos});
+                document.getElementById('content').innerHTML = rendered;
+            }
+
+            // Update Html Page by new events values
+            function updatePage() {
+                updateHtml(makeEventsInfos());
+            }
+
+            initLangs();
+            updatePage();
+
+            setInterval(updatePage, 1000);
+        </script>
+    </body>
+</html>
