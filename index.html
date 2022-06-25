@@ -18,7 +18,7 @@
 
         <script id="template_content" type="x-tmpl-mustache">
             {{#events_infos}}
-                <div class="card mt-2">
+                <div class="card mt-2{{#color_name}} border-{{.}} bg-{{.}} bg-opacity-10{{/color_name}}">
                     <div class="card-body">
                         <h5 class="card-title">{{title}}</h5>
                         <h6 class="card-subtitle mb-2 text-muted">{{subtitle}}</h6>
@@ -206,6 +206,15 @@
                 // Add calc results
                 event_infos.delay = Math.floor((event_infos.next_at - now) / 1000);
                 event_infos.ordering = event_infos.delay;
+                if (event_infos.delay <= 5*60) {
+                    event_infos.color_name = 'danger';
+                }
+                else if (event_infos.delay <= 60*60) {
+                    event_infos.color_name = 'warning';
+                }
+                else {
+                    event_infos.color_name = '';
+                }
 
                 // Add global lang infos
                 event_infos.delay_str = timeDiffToStr(event_infos.delay);
