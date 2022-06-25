@@ -134,6 +134,10 @@
                     en: 'm',
                     fr: 'm',
                 },
+                notify: {
+                    en: 'Event will start at {{location}}',
+                    fr: 'L\'événement va commencer à {{location}}',
+                },
                 seconds: {
                     en: 's',
                     fr: 's',
@@ -143,6 +147,7 @@
                     fr: '{{couldown}} à {{location}}',
                 }
             };
+            let already_notified = {};
 
             function initLangs() {
                 let langs = [];
@@ -156,6 +161,16 @@
                 const template = document.getElementById('template_lang').innerHTML;
                 const rendered = Mustache.render(template, { user_lang: USER_LANG, langs: langs});
                 document.getElementById('lang').innerHTML = rendered;
+            }
+
+            function initNotification() {
+                if (!('Notification' in window)) {
+                    return
+                }
+
+                if (Notification.permission !== 'denied') {
+                    Notification.requestPermission();
+                }
             }
 
             // Make events infos
@@ -208,12 +223,32 @@
                 event_infos.ordering = event_infos.delay;
                 if (event_infos.delay <= 5*60) {
                     event_infos.color_name = 'danger';
-                }
-                else if (event_infos.delay <= 60*60) {
-                    event_infos.color_name = 'warning';
+
+                    // Notify user
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        // Ignore if already notified
+                        if (!(event_infos.title in already_notified)) {
+                            already_notified[event_infos.title] = event_infos.next_at;
+
+                            new Notification(event_infos.title, {
+                                body: Mustache.render(LANGS.notify[USER_LANG], event_infos),
+                                lang: USER_LANG,
+                            })
+                        }
+                    }
                 }
                 else {
-                    event_infos.color_name = '';
+                    // Remove notification lock if exist
+                    if (!(event_infos.title in already_notified)) {
+                        delete already_notified[event_infos.title];
+                    }
+
+                    if (event_infos.delay <= 60*60) {
+                        event_infos.color_name = 'warning';
+                    }
+                    else {
+                        event_infos.color_name = '';
+                    }
                 }
 
                 // Add global lang infos
@@ -257,6 +292,7 @@
             }
 
             initLangs();
+            initNotification();
             updatePage();
 
             setInterval(updatePage, 1000);
