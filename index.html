@@ -68,10 +68,10 @@
                     start_at: [
                         Cron('0  0  12 * * WED'),
                         Cron('0 30  20 * * WED'),
-                        Cron('0  0  21 * * WED'),
+                        Cron('0  0  22 * * WED'),
                         Cron('0  0  12 * * FRI'),
                         Cron('0 30  20 * * FRI'),
-                        Cron('0  0  21 * * FRI'),
+                        Cron('0  0  22 * * FRI'),
                     ],
                     duration: 0
                 },
@@ -109,10 +109,10 @@
                     start_at: [
                         Cron('0  0  12 * * Tue'),
                         Cron('0 30  20 * * Tue'),
-                        Cron('0  0  22 * * Tue'),
+                        Cron('0  0  21 * * Tue'),
                         Cron('0  0  12 * * Sat'),
                         Cron('0 30  20 * * Sat'),
-                        Cron('0  0  22 * * Sat'),
+                        Cron('0  0  21 * * Sat'),
                     ],
                     duration: 0
                 },
@@ -228,10 +228,10 @@
                 let result = '';
 
                 const assoc = [
-                    [86400, LANGS.days[USER_LANG]], // Days
-                    [3600, LANGS.hours[USER_LANG]], // Hours
-                    [60, LANGS.minutes[USER_LANG]], // Minutes
-                    [1, LANGS.seconds[USER_LANG]],  // Seconds
+                    [24*60*60, LANGS.days[USER_LANG]], // Days
+                    [60*60, LANGS.hours[USER_LANG]],   // Hours
+                    [60, LANGS.minutes[USER_LANG]],    // Minutes
+                    [1, LANGS.seconds[USER_LANG]],     // Seconds
                 ]
                 for (const data of assoc) {
                     const count = Math.floor(seconds / data[0]);
