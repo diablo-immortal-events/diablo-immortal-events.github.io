@@ -239,7 +239,7 @@
                 }
                 else {
                     // Remove notification lock if exist
-                    if (!(event_infos.title in already_notified)) {
+                    if (event_infos.title in already_notified) {
                         delete already_notified[event_infos.title];
                     }
 
